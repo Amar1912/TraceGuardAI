@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020617; /* Slate 950 */
+  --foreground: #f8fafc; /* Slate 50 */
+  --card: #0f172a; /* Slate 900 */
+  --card-foreground: #f8fafc;
+  --border: #1e293b; /* Slate 800 */
+  --muted: #334155; /* Slate 700 */
+  --muted-foreground: #94a3b8; /* Slate 400 */
+  --primary: #3b82f6; /* Blue 500 */
+  --accent: #6366f1; /* Indigo 500 */
+
+  /* Semantic Colors */
+  --risk-low: #22c55e; /* Green */
+  --risk-medium: #f97316; /* Orange */
+  --risk-high: #ef4444; /* Red */
+  --risk-critical: #7f1d1d; /* Deep Red */
+  --ai-purple: #a855f7; /* Purple */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-risk-critical: var(--risk-critical);
+  --color-ai-purple: var(--ai-purple);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Custom compact scrollbar for high dense UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* React Flow theme adjustments for dark mode */
+.react-flow__renderer {
+  background: #020617 !important;
+}
+.react-flow__node {
+  color: #fff !important;
+  border-radius: 6px !important;
+}
+.react-flow__handle {
+  background: #3b82f6 !important;
+}
+.react-flow__controls-button {
+  background: #0f172a !important;
+  fill: #f8fafc !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+.react-flow__controls-button:hover {
+  background: #1e293b !important;
+}
+.react-flow__attribution {
+  display: none !important;
+}
