@@ -185,7 +185,7 @@ export default function CustomerProfilePage() {
                       <td className="py-2 px-2 text-blue-400 font-bold">
                         <Link href={`/transactions/${t.id}`}>{t.id}</Link>
                       </td>
-                      <td className="py-2 px-2 text-slate-500 text-[11px]">{new Date(t.timestamp).toLocaleString()}</td>
+                      <td className="py-2 px-2 text-slate-500 text-[11px]" suppressHydrationWarning>{new Date(t.timestamp).toLocaleString()}</td>
                       <td className="py-2 px-2 font-sans text-slate-200">{t.merchant}</td>
                       <td className="py-2 px-2 font-bold text-slate-100">${t.amount.toFixed(2)}</td>
                       <td className="py-2 px-2 font-sans text-slate-400 text-[11px]">{t.location}</td>

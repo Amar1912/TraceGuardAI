@@ -262,7 +262,7 @@ export default function CasesListPage() {
                         {item.status}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]" suppressHydrationWarning>
                       {new Date(item.updatedAt).toLocaleDateString()} {new Date(item.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
                     <td className="py-3.5 px-4 text-right">

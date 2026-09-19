@@ -28,8 +28,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="h-full bg-[#020617] text-slate-100 antialiased overflow-hidden">
+      <body className="h-full bg-[#020617] text-slate-100 antialiased overflow-hidden" suppressHydrationWarning>
         <AppLayoutWrapper>{children}</AppLayoutWrapper>
       </body>
     </html>

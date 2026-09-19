@@ -79,7 +79,7 @@ export default function TransactionBlockDetailsPage() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-slate-500 text-[10px]">TIMESTAMP SYNC:</span>
-                  <span className="text-slate-300 mt-0.5"><Calendar className="w-3.5 h-3.5 inline text-slate-500 mr-1" />{new Date(currentTxn.timestamp).toLocaleString()}</span>
+                  <span className="text-slate-300 mt-0.5" suppressHydrationWarning><Calendar className="w-3.5 h-3.5 inline text-slate-500 mr-1" />{new Date(currentTxn.timestamp).toLocaleString()}</span>
                 </div>
               </div>
 
