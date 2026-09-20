@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   AlertOctagon,
@@ -12,8 +12,6 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRight,
-  Send,
-  Sparkles,
   Layers,
   Globe,
   Clock,
@@ -37,15 +35,6 @@ import {
 } from "recharts";
 
 export default function DashboardPage() {
-  // Mock AI Chat Assistant state
-  const [queryInput, setQueryInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<{ role: "user" | "agent"; text: string }[]>([
-    {
-      role: "agent",
-      text: "Telemetry sync complete. Ready to map fraud pattern vectors. Select a query template below or enter a specific node hash parameter."
-    }
-  ]);
-
   // Line Chart: Fraud Risk Velocity (Last 7 Days)
   const riskVelocityData = [
     { name: "Sep 13", Risk: 45, Alerts: 10 },
@@ -82,32 +71,6 @@ export default function DashboardPage() {
     { id: "CASE-2026-004", customer: "CUST-22311", txn: "TXN-122", risk: 43, pattern: "Transaction Fraud", status: "Resolved", updated: "1h ago", tier: "Low" },
     { id: "CASE-2026-005", customer: "CUST-90876", txn: "TXN-033", risk: 88, pattern: "Card Fraud", status: "Investigating", updated: "2h ago", tier: "High" }
   ];
-
-  const handleQueryTemplateClick = (text: string) => {
-    setChatMessages((prev) => [
-      ...prev,
-      { role: "user", text },
-      {
-        role: "agent",
-        text: `Cognitive GraphRAG lookup triggered for request [${text}]. Discovered high-affinity correlation maps linking shared hardware fingerprint tokens across 3 secondary nodes.`
-      }
-    ]);
-  };
-
-  const handleSendQuery = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!queryInput.trim()) return;
-    const currentQuery = queryInput;
-    setQueryInput("");
-    setChatMessages((prev) => [
-      ...prev,
-      { role: "user", text: currentQuery },
-      {
-        role: "agent",
-        text: `Inference pipeline parsed "${currentQuery}". Extracted entity nodes matched target graph matrices. Threat level weights remain consistent with current dossier models.`
-      }
-    ]);
-  };
 
   return (
     <div className="space-y-6 relative select-none">
@@ -437,80 +400,10 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* RIGHT SIDE PANEL WINDOW: AI INTERACTIVE CHAT ASSISTANT PANEL (1 COL) */}
+        {/* RIGHT SIDE PANEL WINDOW: CORE SYSTEM TELEMETRY (1 COL) */}
         <div className="lg:col-span-1 space-y-6">
 
-          {/* Card 1: AI Assistant Interface Box */}
-          <div className="bg-[#070b19]/90 border border-cyan-500/20 rounded-xl shadow-2xl relative overflow-hidden backdrop-blur-md flex flex-col h-[520px]">
-            {/* Header cap */}
-            <div className="px-4 py-3 border-b border-[#1e293b] bg-[#020617]/80 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                <h3 className="text-xs font-bold font-mono tracking-wider text-slate-200 uppercase">AI Assistant</h3>
-              </div>
-              <span className="text-[8px] bg-cyan-950 text-cyan-400 border border-cyan-800/40 px-1.5 py-0.2 rounded font-bold font-mono uppercase tracking-wide">
-                BETA
-              </span>
-            </div>
-
-            {/* Description notice */}
-            <div className="p-2.5 bg-[#020617]/50 border-b border-slate-900 text-[10px] text-slate-500 font-sans leading-normal flex-shrink-0">
-              Ask anything about a case, customer, transaction or fraud pattern.
-            </div>
-
-            {/* Live messages stream console viewport */}
-            <div className="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs">
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-                  <div className={`p-2.5 rounded-lg max-w-[90%] font-sans leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-cyan-600 text-white rounded-br-none font-mono text-[11px]"
-                      : "bg-slate-900 text-slate-300 border border-slate-800 rounded-bl-none"
-                  }`}>
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Query templates suggestion shortcuts chips block */}
-            <div className="p-2 border-t border-slate-900 bg-[#020617]/30 space-y-1.5 flex-shrink-0">
-              <span className="text-[9px] font-mono text-slate-600 uppercase font-bold tracking-wider block px-1">Quick Matrix Queries:</span>
-              <div className="flex flex-wrap gap-1 px-1">
-                {[
-                  "Summarize CASE-2026-001",
-                  "Show connected accounts",
-                  "What’s the risk for CUST-10452?",
-                  "Explain this fraud pattern",
-                  "Suggest next best action"
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleQueryTemplateClick(item)}
-                    className="text-[9px] font-mono bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 px-2 py-0.8 rounded text-left truncate max-w-full transition-colors"
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Input submission box form controls */}
-            <form onSubmit={handleSendQuery} className="p-2 border-t border-[#1e293b] bg-[#020617]/80 flex gap-1.5 flex-shrink-0">
-              <input
-                type="text"
-                placeholder="Type your question..."
-                value={queryInput}
-                onChange={(e) => setQueryInput(e.target.value)}
-                className="flex-1 bg-[#020617] text-slate-200 border border-[#1e293b] rounded px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-cyan-500 placeholder:text-slate-600"
-              />
-              <button type="submit" className="p-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded transition-colors flex items-center justify-center shadow-md">
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            </form>
-          </div>
-
-          {/* Card 2: Administrative Core System Operation Status Circular meters */}
+          {/* Card 1: Administrative Core System Operation Status Circular meters */}
           <div className="bg-[#070b19]/60 border border-[#1e293b] rounded-xl p-4 space-y-3.5 shadow-lg">
             <div className="flex flex-col space-y-0.5 border-b border-slate-900 pb-1.5">
               <h3 className="text-xs font-bold font-mono text-slate-300 uppercase tracking-wider">All Systems Operational</h3>
