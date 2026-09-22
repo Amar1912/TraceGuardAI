@@ -1,6 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Project Components
+
+### ⚙️ Backend (FastAPI)
+The backend is a modular FastAPI application that orchestrates the investigation workflow, AI Agent (LangGraph), and TigerGraph integration.
+
+**Setup & Run:**
+```bash
+cd backend
+python -m pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
+```
+
+### 🌐 Frontend (Next.js)
+The frontend is a futuristic command center built with Next.js and Tailwind CSS.
+
+**Setup & Run:**
+```bash
+npm install
+npm run dev
+```
 
 First, run the development server:
 

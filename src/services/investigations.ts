@@ -1,36 +1,64 @@
-import { useFraudStore } from "@/lib/mock-data/store";
-import { Evidence, Finding, NextBestAction, Approval, TimelineEvent } from "@/types";
+import { apiFetch } from "./api";
+import { Evidence, Finding, NextBestAction, Approval, TimelineEvent, InvestigationData } from "@/types";
 
 export const InvestigationService = {
-  getEvidenceForCase: (caseId: string): Evidence[] => {
-    return useFraudStore.getState().evidence.filter((e) => e.caseId === caseId);
+  startInvestigation: async (caseId: string): Promise<InvestigationData> => {
+    return apiFetch("/investigations/start", {
+      method: "POST",
+      body: JSON.stringify({ case_id: caseId }),
+    });
   },
 
-  getFindingsForCase: (caseId: string): Finding[] => {
-    return useFraudStore.getState().findings.filter((f) => f.caseId === caseId);
+  getEvidenceForCase: async (caseId: string): Promise<Evidence[]> => {
+    return apiFetch(`/cases/${caseId}/evidence`);
   },
 
-  getNextActionForCase: (caseId: string): NextBestAction | undefined => {
-    return useFraudStore.getState().nextActions.find((a) => a.caseId === caseId);
+  getFindingsForCase: async (caseId: string): Promise<Finding[]> => {
+    const investigation = await apiFetch(`/cases/${caseId}/investigation`);
+    return investigation ? investigation.findings : [];
   },
 
-  getApprovalForCase: (caseId: string): Approval | undefined => {
-    return useFraudStore.getState().approvals.find((a) => a.caseId === caseId);
+  getNextActionForCase: async (caseId: string): Promise<NextBestAction | undefined> => {
+    const actions = await apiFetch(`/cases/${caseId}/actions`);
+    return actions[0];
   },
 
-  getTimelineForCase: (caseId: string): TimelineEvent[] => {
-    return useFraudStore.getState().timelines.filter((t) => t.caseId === caseId);
+  getApprovalForCase: async (caseId: string): Promise<Approval | undefined> => {
+    const approvals = await apiFetch(`/cases/${caseId}/approvals`);
+    return approvals[0];
   },
 
-  submitActionDecision: (caseId: string, decision: "Approved" | "Rejected" | "Escalated"): void => {
-    useFraudStore.getState().updateActionStatus(caseId, decision);
+  getTimelineForCase: async (caseId: string): Promise<TimelineEvent[]> => {
+    return apiFetch(`/cases/${caseId}/timeline`);
   },
 
-  submitApprovalDecision: (approvalId: string, status: "Approved" | "Rejected", notes?: string): void => {
-    useFraudStore.getState().updateApprovalStatus(approvalId, status, notes);
+  submitActionDecision: async (caseId: string, decision: "Approved" | "Rejected" | "Escalated"): Promise<void> => {
+    // Logic to update action status
+    const action = await InvestigationService.getNextActionForCase(caseId);
+    if (action) {
+      await apiFetch(`/actions/${action.action_id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: decision.toUpperCase() }),
+      });
+    }
   },
 
-  triggerEvidenceRequest: (caseId: string, label: string): void => {
-    useFraudStore.getState().requestEvidence(caseId, label);
+  submitApprovalDecision: async (approvalId: string, status: "Approved" | "Rejected", notes?: string): Promise<void> => {
+    const endpoint = status === "Approved" ? "approve" : "reject";
+    await apiFetch(`/approvals/${approvalId}/${endpoint}`, {
+      method: "POST",
+      body: JSON.stringify({ reason: notes }),
+    });
+  },
+
+  triggerEvidenceRequest: async (caseId: string, label: string): Promise<void> => {
+    await apiFetch(`/cases/${caseId}/timeline`, {
+      method: "POST",
+      body: JSON.stringify({
+        event_type: "EVIDENCE_REQUESTED",
+        description: `Analyst requested additional evidence: ${label}`,
+        actor: "ANALYST"
+      }),
+    });
   }
 };

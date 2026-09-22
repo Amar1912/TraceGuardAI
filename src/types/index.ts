@@ -12,7 +12,12 @@ export type CaseStatus =
   | "Open"
   | "Investigating"
   | "Pending Approval"
-  | "Resolved";
+  | "Resolved"
+  | "OPEN"
+  | "INVESTIGATING"
+  | "PENDING_APPROVAL"
+  | "RESOLVED"
+  | "ESCALATED";
 
 export type PriorityLevel = "Low" | "Medium" | "High" | "Critical";
 
@@ -96,12 +101,19 @@ export interface RiskAssessment {
 }
 
 export interface NextBestAction {
+  action_id: string;
   caseId: string;
   recommendedAction: string;
   reason: string;
   priority: PriorityLevel;
   approvalRequired: boolean;
   status: "Pending" | "Approved" | "Rejected" | "Escalated";
+}
+
+export interface GraphData {
+  case_id: string;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
 }
 
 export interface Approval {

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.routes import cases, customers, transactions, investigations, graph, dashboard, evidence, actions, approvals
+from app.api.routes import cases, customers, transactions, investigations, graph, dashboard, evidence, actions, approvals, search, benchmark
 
 api_router = APIRouter()
 
@@ -12,3 +12,5 @@ api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboar
 api_router.include_router(evidence.router, prefix="/cases", tags=["evidence"])
 api_router.include_router(actions.router, prefix="", tags=["actions"])
 api_router.include_router(approvals.router, prefix="/approvals", tags=["approvals"])
+api_router.include_router(search.router, prefix="/search", tags=["search"])
+api_router.include_router(benchmark.router, prefix="/benchmark", tags=["benchmark"])

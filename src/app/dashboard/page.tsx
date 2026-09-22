@@ -2,8 +2,11 @@
 
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { DashboardService, DashboardSummary, RiskTrendItem, CaseStatusItem, FraudPatternItem } from "@/services/dashboard";
+import { CaseService } from "@/services/cases";
+import { Case } from "@/types";
 import {
   AlertOctagon,
   ShieldAlert,
@@ -35,27 +38,70 @@ import {
 } from "recharts";
 
 export default function DashboardPage() {
-  // Line Chart: Fraud Risk Velocity (Last 7 Days)
-  const riskVelocityData = [
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [riskTrend, setRiskTrend] = useState<RiskTrendItem[]>([]);
+  const [caseStatus, setCaseStatus] = useState<CaseStatusItem[]>([]);
+  const [patterns, setPatterns] = useState<FraudPatternItem[]>([]);
+  const [recentCases, setRecentCases] = useState<Case[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      try {
+        const [sum, trend, status, pats, cases] = await Promise.all([
+          DashboardService.getSummary(),
+          DashboardService.getRiskTrend(),
+          DashboardService.getCaseStatusDistribution(),
+          DashboardService.getFraudPatternDistribution(),
+          CaseService.getCases()
+        ]);
+        setSummary(sum);
+        setRiskTrend(trend);
+        setCaseStatus(status);
+        setPatterns(pats);
+        setRecentCases(cases.slice(0, 5));
+      } catch (error) {
+        console.error("Failed to load dashboard data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDashboardData();
+  }, []);
+
+  // Fallback / Initial Data while loading
+  const riskVelocityData = riskTrend.length > 0 ? riskTrend.map(t => ({ name: t.date, Risk: t.risk_score, Alerts: t.alert_count })) : [
     { name: "Sep 13", Risk: 45, Alerts: 10 },
     { name: "Sep 14", Risk: 52, Alerts: 14 },
     { name: "Sep 15", Risk: 48, Alerts: 12 },
     { name: "Sep 16", Risk: 68, Alerts: 22 },
-    { name: "Sep 17", Risk: 72, Alerts: 18 }, // Tooltip highlighted target
+    { name: "Sep 17", Risk: 72, Alerts: 18 },
     { name: "Sep 18", Risk: 85, Alerts: 25 },
     { name: "Sep 19", Risk: 91, Alerts: 30 }
   ];
 
-  // Donut Chart: Cases by Status (Total: 32)
-  const casesStatusData = [
-    { name: "Open", value: 12, color: "#06b6d4" },         // Cyan
-    { name: "Investigating", value: 8, color: "#6366f1" },  // Indigo
-    { name: "Pending Approval", value: 5, color: "#f97316" }, // Orange
-    { name: "Resolved", value: 7, color: "#10b981" }       // Emerald
+  const STATUS_COLORS: Record<string, string> = {
+    "OPEN": "#06b6d4",
+    "INVESTIGATING": "#6366f1",
+    "PENDING_APPROVAL": "#f97316",
+    "RESOLVED": "#10b981"
+  };
+
+  const casesStatusData = caseStatus.length > 0 ? caseStatus.map(s => ({
+    name: s.status,
+    value: s.count,
+    color: STATUS_COLORS[s.status.toUpperCase()] || "#64748b"
+  })) : [
+    { name: "Open", value: 12, color: "#06b6d4" },
+    { name: "Investigating", value: 8, color: "#6366f1" },
+    { name: "Pending Approval", value: 5, color: "#f97316" },
+    { name: "Resolved", value: 7, color: "#10b981" }
   ];
 
-  // Bar Chart: Fraud Pattern Distribution
-  const patternDistributionData = [
+  const patternDistributionData = patterns.length > 0 ? patterns.map(p => ({
+    name: p.pattern,
+    count: p.count
+  })) : [
     { name: "Account Takeover", count: 15 },
     { name: "Synthetic Identity", count: 9 },
     { name: "Money Laundering", count: 6 },
@@ -64,14 +110,6 @@ export default function DashboardPage() {
   ];
 
   // Recent Investigations table data
-  const recentInvestigations = [
-    { id: "CASE-2026-001", customer: "CUST-10452", txn: "TXN-001", risk: 91, pattern: "Account Takeover", status: "Investigating", updated: "2m ago", tier: "High" },
-    { id: "CASE-2026-002", customer: "CUST-98231", txn: "TXN-045", risk: 78, pattern: "Synthetic Identity", status: "Open", updated: "12m ago", tier: "High" },
-    { id: "CASE-2026-003", customer: "CUST-76521", txn: "TXN-087", risk: 65, pattern: "Money Laundering", status: "Pending Approval", updated: "24m ago", tier: "Medium" },
-    { id: "CASE-2026-004", customer: "CUST-22311", txn: "TXN-122", risk: 43, pattern: "Transaction Fraud", status: "Resolved", updated: "1h ago", tier: "Low" },
-    { id: "CASE-2026-005", customer: "CUST-90876", txn: "TXN-033", risk: 88, pattern: "Card Fraud", status: "Investigating", updated: "2h ago", tier: "High" }
-  ];
-
   return (
     <div className="space-y-6 relative select-none">
 
@@ -132,7 +170,7 @@ export default function DashboardPage() {
                 <span>Active Cases</span>
                 <AlertOctagon className="w-4 h-4 text-cyan-400" />
               </div>
-              <div className="text-3xl font-extrabold font-mono text-cyan-400 filter drop-shadow-[0_0_6px_rgba(6,182,212,0.3)]">7</div>
+              <div className="text-3xl font-extrabold font-mono text-cyan-400 filter drop-shadow-[0_0_6px_rgba(6,182,212,0.3)]">{summary?.active_cases ?? 7}</div>
               <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-0.5">
                 <TrendingUp className="w-3 h-3" /> +12% vs last week
               </div>
@@ -145,7 +183,7 @@ export default function DashboardPage() {
                 <span>High Risk Cases</span>
                 <ShieldAlert className="w-4 h-4 text-red-400" />
               </div>
-              <div className="text-3xl font-extrabold font-mono text-red-400 filter drop-shadow-[0_0_6px_rgba(239,68,68,0.3)]">5</div>
+              <div className="text-3xl font-extrabold font-mono text-red-400 filter drop-shadow-[0_0_6px_rgba(239,68,68,0.3)]">{summary?.high_risk_cases ?? 5}</div>
               <div className="text-[10px] font-mono text-red-400 font-semibold bg-red-950/40 px-1.5 py-0.2 rounded border border-red-950">
                 Immediate Focus Required
               </div>
@@ -158,7 +196,7 @@ export default function DashboardPage() {
                 <span>Investigations Today</span>
                 <Activity className="w-4 h-4 text-purple-400" />
               </div>
-              <div className="text-3xl font-extrabold font-mono text-purple-400 filter drop-shadow-[0_0_6px_rgba(168,85,247,0.3)]">12</div>
+              <div className="text-3xl font-extrabold font-mono text-purple-400 filter drop-shadow-[0_0_6px_rgba(168,85,247,0.3)]">{summary?.investigations_today ?? 12}</div>
               <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-0.5">
                 <TrendingUp className="w-3 h-3" /> +33% vs yesterday
               </div>
@@ -171,7 +209,7 @@ export default function DashboardPage() {
                 <span>Pending Approvals</span>
                 <CheckSquare className="w-4 h-4 text-orange-400" />
               </div>
-              <div className="text-3xl font-extrabold font-mono text-orange-400 filter drop-shadow-[0_0_6px_rgba(249,115,22,0.3)]">3</div>
+              <div className="text-3xl font-extrabold font-mono text-orange-400 filter drop-shadow-[0_0_6px_rgba(249,115,22,0.3)]">{summary?.pending_approvals ?? 3}</div>
               <div className="text-[10px] font-mono text-slate-400 flex items-center gap-0.5">
                 <TrendingDown className="w-3 h-3 text-red-400" /> -25% vs yesterday
               </div>
@@ -301,19 +339,19 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-900 text-slate-300">
-                  {recentInvestigations.map((item) => (
+                  {recentCases.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-900/40 transition-colors">
                       <td className="py-3 px-4 font-bold text-cyan-400">{item.id}</td>
-                      <td className="py-3 px-4 font-sans text-slate-200">{item.customer}</td>
-                      <td className="py-3 px-4 text-slate-400">{item.txn}</td>
+                      <td className="py-3 px-4 font-sans text-slate-200">{item.customerName || item.customerId}</td>
+                      <td className="py-3 px-4 text-slate-400">{item.transactionId || "N/A"}</td>
                       <td className="py-3 px-4 text-center">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          item.tier === "High" ? "bg-red-950/60 text-red-400" : "bg-orange-950/40 text-orange-400"
+                          item.riskScore >= 80 ? "bg-red-950/60 text-red-400" : "bg-orange-950/40 text-orange-400"
                         }`}>
-                          {item.risk}
+                          {item.riskScore}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-[11px] text-slate-300">{item.pattern}</td>
+                      <td className="py-3 px-4 text-[11px] text-slate-300">{item.fraudPattern}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-0.2 rounded-full text-[9px] border ${
                           item.status === "Investigating" ? "text-cyan-400 bg-cyan-950/30 border-cyan-800/20" :
@@ -322,7 +360,7 @@ export default function DashboardPage() {
                           "text-blue-400 bg-blue-950/30 border-blue-800/20"
                         }`}>{item.status}</span>
                       </td>
-                      <td className="py-3 px-4 text-slate-500 text-[11px]">{item.updated}</td>
+                      <td className="py-3 px-4 text-slate-500 text-[11px]" suppressHydrationWarning>{new Date(item.updatedAt).toLocaleDateString()}</td>
                       <td className="py-3 px-4 text-right">
                         <Link href={`/investigations/${item.id}`} className="text-cyan-400 text-[11px] hover:underline hover:text-cyan-300 font-bold flex items-center justify-end gap-0.5">
                           View &rarr;

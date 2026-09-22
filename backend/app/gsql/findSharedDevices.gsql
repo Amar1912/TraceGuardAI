@@ -1,0 +1,23 @@
+CREATE QUERY findSharedDevices(VERTEX<Account> acc) FOR GRAPH TraceGuardGraph {
+  /*
+  Finds devices shared between the target account and other unrelated accounts.
+  */
+
+  Seed = {acc};
+
+  # 1. Get transactions from account
+  Txns = SELECT t FROM Seed:s -(INITIATED)-> Transaction:t;
+
+  # 2. Get devices used by these transactions
+  Devices = SELECT d FROM Txns:t -(USED_DEVICE)-> Device:d;
+
+  # 3. Find other transactions using these same devices
+  OtherTxns = SELECT t FROM Devices:d <-(USED_DEVICE)- Transaction:t;
+
+  # 4. Find other accounts that initiated these transactions
+  OtherAccs = SELECT a FROM OtherTxns:t <-(INITIATED)- Account:a
+              WHERE a != acc;
+
+  PRINT Devices;
+  PRINT OtherAccs;
+}

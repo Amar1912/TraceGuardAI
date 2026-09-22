@@ -17,7 +17,10 @@ class Settings(BaseSettings):
     TIGERGRAPH_HOST: str = ""
     TIGERGRAPH_USERNAME: str = ""
     TIGERGRAPH_PASSWORD: str = ""
-    TIGERGRAPH_GRAPH_NAME: str = ""
+    TIGERGRAPH_GRAPH_NAME: str = "TraceGuardGraph"
+    TIGERGRAPH_SECRET: str = ""
+
+    DATA_SOURCE: str = "tigergraph" # "tigergraph" or "mock"
 
     AGENT_API_URL: str = ""
     GRAPHRAG_API_URL: str = ""

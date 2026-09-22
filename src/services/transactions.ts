@@ -1,16 +1,16 @@
-import { useFraudStore } from "@/lib/mock-data/store";
+import { apiFetch } from "./api";
 import { Transaction } from "@/types";
 
 export const TransactionService = {
-  getTransactions: (): Transaction[] => {
-    return useFraudStore.getState().transactions;
+  getTransactions: async (): Promise<Transaction[]> => {
+    return apiFetch("/transactions/");
   },
 
-  getTransactionById: (id: string): Transaction | undefined => {
-    return useFraudStore.getState().transactions.find((t) => t.id === id);
+  getTransactionById: async (id: string): Promise<Transaction> => {
+    return apiFetch(`/transactions/${id}`);
   },
 
-  getTransactionsByCustomerId: (customerId: string): Transaction[] => {
-    return useFraudStore.getState().transactions.filter((t) => t.customerId === customerId);
+  getTransactionsByCustomerId: async (customerId: string): Promise<Transaction[]> => {
+    return apiFetch(`/customers/${customerId}/transactions`);
   }
 };

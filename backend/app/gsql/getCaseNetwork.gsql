@@ -1,0 +1,23 @@
+CREATE QUERY getCaseNetwork(VERTEX<Case> c) FOR GRAPH TraceGuardGraph {
+  /*
+  Retrieves the full local network around a fraud case including customer, account,
+  suspicious transactions, and shared hardware.
+  */
+
+  Seed = {c};
+
+  # Hops
+  Accounts = SELECT a FROM Seed:s -(ASSOCIATED_WITH)-> Account:a;
+
+  Transactions = SELECT t FROM Accounts:a -(INITIATED)-> Transaction:t;
+
+  Devices = SELECT d FROM Transactions:t -(USED_DEVICE)-> Device:d;
+
+  IPs = SELECT i FROM Transactions:t -(FROM_IP)-> IP:i;
+
+  PRINT Seed;
+  PRINT Accounts;
+  PRINT Transactions;
+  PRINT Devices;
+  PRINT IPs;
+}

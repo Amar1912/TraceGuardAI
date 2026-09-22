@@ -8,3 +8,8 @@ httpx
 pytest
 pytest-asyncio
 python-multipart
+pyTigerGraph
+langgraph>=0.2
+langchain-openai
+langchain-community
+pandas

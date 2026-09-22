@@ -677,6 +677,7 @@ export const initialFindings: Finding[] = [
 
 export const initialNextActions: NextBestAction[] = [
   {
+    action_id: "ACT-001",
     caseId: "CASE-2026-001",
     recommendedAction: "Escalate to Senior Fraud Analyst & Block Crypto Gateway Routing",
     reason: "High risk score (91) combined with concurrent impossible travel, high-value asset out-of-character exit, and immediate VPN overlay usage.",
@@ -685,6 +686,7 @@ export const initialNextActions: NextBestAction[] = [
     status: "Pending"
   },
   {
+    action_id: "ACT-002",
     caseId: "CASE-2026-002",
     recommendedAction: "Freeze Complete Account Infrastructure & Revoke SIM token",
     reason: "Critical rating (98). Identity takeover confirmed through unauthorized telephony settings overwrite followed by emergency luxury capital drain attempts.",

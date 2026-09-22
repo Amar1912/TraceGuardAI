@@ -1,12 +1,12 @@
-import { useFraudStore } from "@/lib/mock-data/store";
+import { apiFetch } from "./api";
 import { Customer } from "@/types";
 
 export const CustomerService = {
-  getCustomers: (): Customer[] => {
-    return useFraudStore.getState().customers;
+  getCustomers: async (): Promise<Customer[]> => {
+    return apiFetch("/customers/");
   },
 
-  getCustomerById: (id: string): Customer | undefined => {
-    return useFraudStore.getState().customers.find((c) => c.id === id);
+  getCustomerById: async (id: string): Promise<Customer> => {
+    return apiFetch(`/customers/${id}`);
   }
 };

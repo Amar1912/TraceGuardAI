@@ -1,12 +1,12 @@
-import { getMockGraphData, globalGraphData } from "@/lib/mock-data/initial";
-import { GraphNode, GraphEdge } from "@/types";
+import { apiFetch } from "./api";
+import { GraphData } from "@/types";
 
 export const GraphService = {
-  getGraphByCaseId: (caseId: string): { nodes: GraphNode[]; edges: GraphEdge[] } => {
-    return getMockGraphData(caseId);
+  getGraphByCaseId: async (caseId: string): Promise<GraphData> => {
+    return apiFetch(`/graph/${caseId}`);
   },
 
-  getGlobalGraph: (): { nodes: GraphNode[]; edges: GraphEdge[] } => {
-    return globalGraphData;
+  getGlobalGraph: async (): Promise<GraphData> => {
+    return apiFetch("/graph/all");
   }
 };

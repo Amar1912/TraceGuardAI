@@ -1,16 +1,19 @@
-import { useFraudStore } from "@/lib/mock-data/store";
+import { apiFetch } from "./api";
 import { Case, CaseStatus } from "@/types";
 
 export const CaseService = {
-  getCases: (): Case[] => {
-    return useFraudStore.getState().cases;
+  getCases: async (): Promise<Case[]> => {
+    return apiFetch("/cases/");
   },
 
-  getCaseById: (id: string): Case | undefined => {
-    return useFraudStore.getState().cases.find((c) => c.id === id);
+  getCaseById: async (id: string): Promise<Case> => {
+    return apiFetch(`/cases/${id}`);
   },
 
-  updateStatus: (caseId: string, status: CaseStatus): void => {
-    useFraudStore.getState().updateCaseStatus(caseId, status);
+  updateStatus: async (caseId: string, status: CaseStatus): Promise<Case> => {
+    return apiFetch(`/cases/${caseId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
   }
 };
