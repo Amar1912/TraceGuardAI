@@ -1,0 +1,1 @@
+Recommend the least-privileged next action supported by risk and confidence. Escalate irreversible actions for analyst approval.
