@@ -16,5 +16,9 @@ async def start_investigation(request: InvestigationStartRequest, db: Session = 
 
 @router.get("/{investigation_id}", response_model=Investigation)
 def read_investigation(investigation_id: str, db: Session = Depends(get_db)):
-    # To be implemented in service
-    return None
+    inv = investigation_service.get_investigation_by_id(db, investigation_id)
+    if not inv:
+        inv = investigation_service.get_investigation_for_case(db, investigation_id)
+    if not inv:
+        raise HTTPException(status_code=404, detail="Investigation not found")
+    return inv

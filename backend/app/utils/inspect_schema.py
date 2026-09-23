@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TIGERGRAPH_HOST = os.getenv("TIGERGRAPH_HOST", "")
-TIGERGRAPH_GRAPH_NAME = "TraceGuardGraph"
-TIGERGRAPH_SECRET = "jmcs5p0qgklb3erggr5ot94g6bj5u4bs"
+TIGERGRAPH_GRAPH_NAME = os.getenv("TIGERGRAPH_GRAPH_NAME", "TraceGuardGraph")
+TIGERGRAPH_SECRET = os.getenv("TIGERGRAPH_SECRET", "")
 
 def inspect():
     print(f"Connecting to {TIGERGRAPH_HOST}...")

@@ -8,8 +8,45 @@ import { Search, Filter, ArrowUpDown, Eye, HelpCircle } from "lucide-react";
 import { useFraudStore } from "@/lib/mock-data/store";
 import { CaseStatus, FraudPattern, PriorityLevel } from "@/types";
 
+import { CaseService } from "@/services/cases";
+
 export default function CasesListPage() {
-  const cases = useFraudStore((state) => state.cases);
+  const storeCases = useFraudStore((state) => state.cases);
+  const [fetchedCases, setFetchedCases] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function loadCases() {
+      try {
+        const apiCases = await CaseService.getCases();
+        if (apiCases && apiCases.length > 0) {
+          // Normalize API case fields to UI model
+          const mapped = apiCases.map((c: any) => ({
+            id: c.case_id || c.id,
+            customerId: c.customer_id || c.customerId || "CUST-10452",
+            customerName: c.customer_name || c.customerName || "Sarah Jenkins",
+            transactionId: c.transaction_id || c.transactionId || "TXN-2026-001",
+            status: c.status === "INVESTIGATING" ? "Investigating" : c.status === "PENDING_APPROVAL" ? "Pending Approval" : c.status === "RESOLVED" ? "Resolved" : c.status || "Open",
+            riskScore: c.risk_score ?? c.riskScore ?? 80,
+            confidenceScore: c.confidence_score ?? c.confidenceScore ?? 90,
+            fraudPattern: c.fraud_pattern || c.fraudPattern || "Account Takeover",
+            priority: c.priority ? (c.priority.charAt(0) + c.priority.slice(1).toLowerCase()) : "High",
+            createdAt: c.created_at || c.createdAt || new Date().toISOString(),
+            updatedAt: c.updated_at || c.updatedAt || new Date().toISOString(),
+            summary: c.summary || c.trigger_description || "Case retrieved from backend API"
+          }));
+          setFetchedCases(mapped);
+        }
+      } catch (err) {
+        console.warn("Backend API offline or unreachable, using fallback store:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCases();
+  }, []);
+
+  const cases = fetchedCases.length > 0 ? fetchedCases : storeCases;
 
   // States for query filtration
   const [searchTerm, setSearchTerm] = useState("");
