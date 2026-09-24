@@ -1,0 +1,80 @@
+{
+  "case_id": "HHG-002",
+  "customer_id": "CUST-1002",
+  "account_id": "ACC-1002",
+  "transaction_id": "TXN-1002",
+  "case_record": {
+    "status": "PENDING_APPROVAL",
+    "risk_score": 99,
+    "confidence_score": 89,
+    "fraud_pattern": "Device Sharing Ring",
+    "priority": "CRITICAL",
+    "summary": "Investigation concluded with a risk score of 1.00. Identified patterns: Device Sharing Ring, Rapid Asset Movement, Potential Structuring. Sufficient evidence collected for final recommendation."
+  },
+  "evidence": [
+    {
+      "evidence_id": "EVD-HHG-002-01",
+      "type": "CONNECTED_ACCOUNTS",
+      "source": "tigergraph",
+      "description": "{'account_id': 'acct-linked-12', 'shared_with': 'acct-001', 'relationship': 'device_overlap'}",
+      "relevance": "HIGH",
+      "confidence": 90
+    },
+    {
+      "evidence_id": "EVD-HHG-002-02",
+      "type": "SHARED_DEVICES",
+      "source": "tigergraph",
+      "description": "{'device_id': 'device-shared-9', 'account_count': 4, 'account_ids': ['acct-001', 'acct-linked-12', 'acct-linked-18', 'acct-linked-22']}",
+      "relevance": "HIGH",
+      "confidence": 90
+    },
+    {
+      "evidence_id": "EVD-HHG-002-03",
+      "type": "TRANSACTION_PATHS",
+      "source": "tigergraph",
+      "description": "{'path': ['acct-001', 'acct-foreign-77', 'merchant-204'], 'hops': 2, 'velocity_hours': 18}",
+      "relevance": "HIGH",
+      "confidence": 90
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "FND-HHG-002-01",
+      "title": "Device Sharing Ring",
+      "description": "Hardware ID used across 3+ unrelated accounts",
+      "severity": "HIGH",
+      "confidence": 90
+    },
+    {
+      "finding_id": "FND-HHG-002-02",
+      "title": "Rapid Asset Movement",
+      "description": "High-velocity transfers to common counterparty nodes",
+      "severity": "HIGH",
+      "confidence": 90
+    },
+    {
+      "finding_id": "FND-HHG-002-03",
+      "title": "Potential Structuring",
+      "description": "Successive transactions just below reporting thresholds",
+      "severity": "MEDIUM",
+      "confidence": 90
+    }
+  ],
+  "pre_evidence_state": {
+    "uncertainty": "customer verification outcome; customer jurisdiction",
+    "additional_evidence_requested": false,
+    "recommended_next_best_action": "BLOCK_ACCOUNT",
+    "approval_route": "AUTOMATED_POLICY_GUARD"
+  },
+  "post_evidence_state": {
+    "recommended_next_best_action": "BLOCK_ACCOUNT",
+    "approval_route": "FRAUD_ANALYST_APPROVAL",
+    "approval_required": true
+  },
+  "sar_report": {
+    "sar_required": true,
+    "status": "DRAFT",
+    "reason": "FinCEN SAR filing trigger: Device Sharing Ring detected with risk score 99."
+  },
+  "graph_written": true
+}

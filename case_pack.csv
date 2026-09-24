@@ -1,0 +1,21 @@
+case_id,customer_id,account_id,transaction_id,amount,currency,merchant,device_id,ip_cluster,trigger_type,trigger_description,initial_risk_score,fraud_pattern_signal
+HHG-001,CUST-1001,ACC-1001,TXN-1001,9200.00,USD,CryptoVantage Exchange,DEV-SHARED-01,185.213.154.12,VELOCITY_SPIKE,"Large out-of-pattern crypto transfer from unrecognized hardware",91,Account Takeover
+HHG-002,CUST-1002,ACC-1002,TXN-1002,8700.00,USD,Global Forex Remit,DEV-SHARED-01,185.213.154.12,DEVICE_OVERLAP,"Shared hardware detected across 4 unrelated accounts",88,Device Sharing Ring
+HHG-003,CUST-1003,ACC-1003,TXN-1003,4950.00,USD,LuxJewelers Online,DEV-SHARED-02,192.168.1.100,STRUCTURING_SIGNAL,"Successive transfers just below reporting thresholds",82,Structuring
+HHG-004,CUST-1004,ACC-1004,TXN-1004,12500.00,USD,PaySwift Merchant,DEV-UNIQUE-04,10.0.0.4,HIGH_VALUE_VELOCITY,"High value transfer to new counterparty node",85,Rapid Asset Movement
+HHG-005,CUST-1005,ACC-1005,TXN-1005,3200.00,USD,Electronics Hub,DEV-UNIQUE-05,10.0.0.5,CUSTOMER_REPORT,"Customer reported unauthorized card-not-present transaction",78,Identity Theft
+HHG-006,CUST-1006,ACC-1006,TXN-1006,9800.00,USD,CryptoVantage Exchange,DEV-SHARED-01,185.213.154.12,VPN_PROXY_EXIT,"Transaction initiated from high-risk proxy exit node",94,Account Takeover
+HHG-007,CUST-1007,ACC-1007,TXN-1007,4800.00,USD,LuxJewelers Online,DEV-SHARED-02,192.168.1.100,STRUCTURING_SIGNAL,"Repeated transfers under threshold within 2 hours",84,Structuring
+HHG-008,CUST-1008,ACC-1008,TXN-1008,15000.00,USD,Global Forex Remit,DEV-UNIQUE-08,10.0.0.8,RAPID_VELOCITY,"Rapid asset drainage across multiple intermediary hops",92,Rapid Asset Movement
+HHG-009,CUST-1009,ACC-1009,TXN-1009,2100.00,USD,Online Gaming World,DEV-UNIQUE-09,10.0.0.9,BIOMETRIC_ANOMALY,"Failed biometric authentication followed by password reset",76,Account Takeover
+HHG-010,CUST-1010,ACC-1010,TXN-1010,8900.00,USD,CryptoVantage Exchange,DEV-SHARED-03,185.213.154.15,DEVICE_RING,"Device hardware shared with previously confirmed fraud case",95,Device Sharing Ring
+HHG-011,CUST-1011,ACC-1011,TXN-1011,3500.00,USD,PaySwift Merchant,DEV-UNIQUE-11,10.0.0.11,LOCATION_DISCREPANCY,"Transaction location incompatible with physical velocity",72,Identity Theft
+HHG-012,CUST-1012,ACC-1012,TXN-1012,4900.00,USD,LuxJewelers Online,DEV-SHARED-02,192.168.1.100,STRUCTURING_SIGNAL,"Third transfer just below reporting limit",86,Structuring
+HHG-013,CUST-1013,ACC-1013,TXN-1013,11200.00,USD,Global Forex Remit,DEV-UNIQUE-13,10.0.0.13,HIGH_RISK_GEOGRAPHY,"Outbound wire to high-risk sanctions jurisdiction",89,Money Laundering
+HHG-014,CUST-1014,ACC-1014,TXN-1014,6400.00,USD,Electronics Hub,DEV-UNIQUE-14,10.0.0.14,ANALYST_AUDIT,"Manual audit flag raised for suspicious payroll transfer",68,Synthetic Fraud
+HHG-015,CUST-1015,ACC-1015,TXN-1015,9600.00,USD,CryptoVantage Exchange,DEV-SHARED-01,185.213.154.12,VPN_PROXY_EXIT,"Anonymized proxy access with high-value crypto exit",93,Account Takeover
+HHG-016,CUST-1016,ACC-1016,TXN-1016,14000.00,USD,PaySwift Merchant,DEV-UNIQUE-16,10.0.0.16,RAPID_VELOCITY,"Circular fund movement back to original sender account",90,Money Laundering
+HHG-017,CUST-1017,ACC-1017,TXN-1017,2800.00,USD,Online Gaming World,DEV-UNIQUE-17,10.0.0.17,CUSTOMER_REPORT,"Customer reported stolen card details used online",74,Card Fraud
+HHG-018,CUST-1018,ACC-1018,TXN-1018,4950.00,USD,LuxJewelers Online,DEV-SHARED-02,192.168.1.100,STRUCTURING_SIGNAL,"Successive high-frequency transfers",83,Structuring
+HHG-019,CUST-1019,ACC-1019,TXN-1019,10500.00,USD,Global Forex Remit,DEV-UNIQUE-19,10.0.0.19,HIGH_VALUE_VELOCITY,"Large transfer following 6 months of account dormancy",87,Account Takeover
+HHG-020,CUST-1020,ACC-2020,TXN-1020,18000.00,USD,CryptoVantage Exchange,DEV-SHARED-03,185.213.154.15,DEVICE_RING,"Multi-account hardware overlap with confirmed mule ring",96,Device Sharing Ring
