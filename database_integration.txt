@@ -1,0 +1,614 @@
+TRACEGUARD AI DATABASE INTEGRATION DOCUMENTATION TigerGraph Cloud
+Integration & Backend Handoff
+
+Version: 1.0 Project: TraceGuard AI Database: TigerGraph Cloud (Savanna
+Edition) Graph: TraceGuardGraph Primary Vertex: PaymentTransaction
+
+====================================================================== 1.
+PURPOSE
+======================================================================
+
+This document describes the complete TigerGraph database integration
+performed for TraceGuard AI.
+
+The objective is to provide the backend team with a clear record of:
+
+-   TigerGraph Cloud infrastructure setup
+-   Workspace configuration
+-   Graph schema and data modeling
+-   Transaction data ingestion
+-   Authentication requirements
+-   Backend connection parameters
+-   Schema discovery and verification
+-   Migration from mock data to live GSQL/API queries
+-   Security requirements and operational recommendations
+
+TraceGuard AI uses a graph database to represent transaction data and
+relationships required for fraud investigation, risk analysis, and
+GraphRAG/agentic investigation workflows.
+
+IMPORTANT SECURITY NOTE: Do NOT store TigerGraph secret keys, API
+tokens, passwords, or other credentials inside this documentation,
+GitHub repositories, frontend source code, screenshots, or public
+deployment logs. Any credential previously exposed in project
+documentation should be revoked/rotated before production use.
+
+======================================================================
+2. HIGH-LEVEL ARCHITECTURE
+======================================================================
+
+The intended integration flow is:
+
+                    +----------------------+
+                    |   TraceGuard AI UI   |
+                    |      Next.js         |
+                    +----------+-----------+
+                               |
+                               | HTTPS / REST API
+                               v
+                    +----------------------+
+                    |   TraceGuard Backend  |
+                    |       FastAPI         |
+                    +----------+-----------+
+                               |
+                    +----------+-----------+
+                    |                      |
+                    | GSQL / RESTPP       | Authentication
+                    v                      v
+              +----------------------------------+
+              |        TigerGraph Cloud          |
+              |          Savanna Edition         |
+              |                                  |
+              |       TraceGuardGraph             |
+              |                                  |
+              |     PaymentTransaction            |
+              |     + Relationships               |
+              +----------------+-----------------+
+                               |
+                               v
+                    Graph analysis / GSQL
+                               |
+                               v
+                    Fraud investigation
+                    and risk intelligence
+
+The frontend should NOT connect directly to TigerGraph.
+
+The recommended architecture is:
+
+Frontend -> FastAPI Backend -> TigerGraph
+
+This keeps database credentials and authentication logic on the server
+side.
+
+======================================================================
+3. PHASE 1 - INFRASTRUCTURE SETUP
+======================================================================
+
+3.1 TigerGraph Cloud
+
+A TigerGraph Cloud graph database instance was deployed using the
+Savanna Edition.
+
+The cloud environment provides the managed infrastructure required for
+the TraceGuard AI graph database.
+
+3.2 Workgroup and Workspace
+
+The following logical environment was created:
+
+Workgroup: MyWorkgroup
+
+Workspace: MyWorkspace
+
+The workspace was initialized and transitioned to Active status.
+
+An Active workspace is required for external application access and
+HTTPS-based database/API communication.
+
+3.3 Why the workspace matters
+
+The workspace provides the runtime environment in which the graph,
+schema, loading jobs, queries, and API access are configured.
+
+Backend developers should verify that:
+
+-   The workspace is Active.
+-   The required graph is available.
+-   External network access is enabled as required.
+-   The backend server can reach the TigerGraph endpoint.
+-   Authentication credentials are valid.
+
+======================================================================
+4. PHASE 2 - GRAPH AND SCHEMA DESIGN
+======================================================================
+
+4.1 Graph Name
+
+TraceGuardGraph
+
+4.2 Primary Vertex
+
+PaymentTransaction
+
+The PaymentTransaction vertex represents an individual financial
+transaction.
+
+The transaction entity is the primary data object used for risk analysis
+and fraud investigation.
+
+4.3 Transaction attributes
+
+The graph model includes transaction-oriented information such as:
+
+-   Transaction ID
+-   Transaction amount
+-   Timestamp
+-   Risk indicators
+-   Other attributes required for investigation and analytics
+
+The exact schema should always be obtained from the live TigerGraph
+workspace rather than hard-coded from this document.
+
+Recommended backend workflow:
+
+1.  Connect securely to TigerGraph.
+2.  Run schema discovery.
+3.  Inspect vertex and edge definitions.
+4.  Confirm attribute names and data types.
+5.  Generate/validate backend models.
+6.  Execute test GSQL queries.
+
+4.4 Graph relationships
+
+TraceGuard AI is designed around relationships between entities.
+
+Depending on the finalized schema, relationships can represent
+connections such as:
+
+Transaction -> Account Transaction -> Customer Transaction -> Device
+Transaction -> IP Address Transaction -> Transaction
+
+The production implementation must use the relationships that actually
+exist in TraceGuardGraph. Do not assume an edge type that has not been
+created.
+
+======================================================================
+5. PHASE 3 - DATA INGESTION
+======================================================================
+
+5.1 Source Data
+
+Transaction datasets were prepared for ingestion into the TigerGraph
+environment.
+
+5.2 Target-to-source mapping
+
+Target-to-source mapping rules were configured for the
+PaymentTransaction vertex.
+
+The mapping process connects source dataset columns to the attributes
+defined in the graph schema.
+
+Example conceptual mapping:
+
+Source Column -> TigerGraph Attribute
+
+transaction_id -> transaction_id amount -> amount timestamp -> timestamp
+risk_indicator -> risk_indicator
+
+The exact attribute names must match the live schema.
+
+5.3 Loading Job
+
+A TigerGraph data loading job was created, configured, and published.
+
+The loading job is responsible for transferring source transaction data
+into the graph.
+
+5.4 Data verification
+
+After loading, data integrity was verified using TigerGraph Graph
+Explorer.
+
+Verification should include:
+
+-   Confirming that vertices were created.
+-   Checking transaction IDs.
+-   Checking transaction amounts.
+-   Checking timestamps.
+-   Checking risk-related attributes.
+-   Checking relationships/edges where applicable.
+-   Comparing loaded counts against the source dataset.
+
+======================================================================
+6. PHASE 4 - AUTHENTICATION AND API ACCESS
+======================================================================
+
+TigerGraph API access requires secure authentication.
+
+A GSQL Secret Key was generated for dynamic API token generation.
+
+SECURITY REQUIREMENT: The actual secret key must NEVER be committed to
+GitHub or included in a public documentation file.
+
+If a real secret key has previously been shared publicly, treat it as
+compromised and rotate/revoke it immediately.
+
+6.1 Required backend configuration
+
+The backend should use environment variables similar to:
+
+TIGERGRAPH_HOST= TIGERGRAPH_GRAPH_NAME=TraceGuardGraph
+TIGERGRAPH_SECRET=
+
+Additional authentication configuration may be required depending on the
+TigerGraph RESTPP/GSQL API version and the selected integration method.
+
+6.2 Example .env structure
+
+TIGERGRAPH_HOST=your-tigergraph-host
+TIGERGRAPH_GRAPH_NAME=TraceGuardGraph TIGERGRAPH_SECRET=your-secret-key
+
+Never commit the .env file.
+
+Add it to .gitignore:
+
+.env .env.* !.env.example
+
+A safe template may be committed:
+
+TIGERGRAPH_HOST= TIGERGRAPH_GRAPH_NAME=TraceGuardGraph
+TIGERGRAPH_SECRET=
+
+======================================================================
+7. PHASE 5 - BACKEND INTEGRATION
+======================================================================
+
+The backend team receives the required connection parameters and
+connects the FastAPI service to TigerGraph.
+
+Recommended flow:
+
+1.  Load environment variables.
+2.  Validate required configuration.
+3.  Generate an authentication token securely.
+4.  Establish HTTPS communication with TigerGraph.
+5.  Discover the live schema.
+6.  Execute a read-only test query.
+7.  Validate the returned transaction data.
+8.  Replace mock database responses with live TigerGraph queries.
+9.  Add error handling and timeout handling.
+10. Add logging without exposing credentials.
+
+======================================================================
+8. SCHEMA DISCOVERY
+======================================================================
+
+A schema discovery utility such as:
+
+inspect_schema.py
+
+can be used to verify the live TigerGraph configuration.
+
+The discovery process should identify:
+
+-   Graph name
+-   Vertex types
+-   Vertex attributes
+-   Edge types
+-   Edge attributes
+-   Available queries
+-   Relevant data types
+
+The backend should use discovered schema information to prevent
+mismatches between frontend/backend models and the actual graph.
+
+Example conceptual workflow:
+
+FastAPI | +– authenticate | +– inspect schema | +– identify
+PaymentTransaction | +– identify relationships | +– execute GSQL/REST
+query | +– normalize result | +– return JSON to frontend
+
+======================================================================
+9. LIVE QUERY INTEGRATION
+======================================================================
+
+The next integration step is replacing mock transaction data with live
+TigerGraph results.
+
+Current conceptual state:
+
+Frontend | v FastAPI | v Mock transaction data
+
+Target state:
+
+Frontend | v FastAPI | v TigerGraph REST/GSQL | v TraceGuardGraph | v
+PaymentTransaction + graph relationships
+
+The frontend should continue communicating with FastAPI rather than
+calling TigerGraph directly.
+
+======================================================================
+10. FASTAPI INTEGRATION RESPONSIBILITIES
+======================================================================
+
+The FastAPI backend should handle:
+
+1.  Authentication
+2.  Request validation
+3.  TigerGraph communication
+4.  GSQL query execution
+5.  Result normalization
+6.  Fraud investigation orchestration
+7.  Risk scoring
+8.  Graph-based relationship retrieval
+9.  GraphRAG context retrieval
+10. Agent workflow integration
+11. Error handling
+12. Audit logging
+
+A typical backend endpoint may conceptually expose:
+
+GET /api/transactions GET /api/transactions/{transaction_id} GET
+/api/investigations/{case_id} POST /api/investigations GET
+/api/graph/relationships/{transaction_id}
+
+Exact routes should follow the project’s implemented API.
+
+======================================================================
+11. QUERY DESIGN
+======================================================================
+
+Queries should be designed around investigation use cases rather than
+simply exposing raw database data.
+
+Examples of useful query categories:
+
+A. Transaction lookup - Find a transaction by ID.
+
+B. Transaction history - Retrieve transactions associated with an
+entity.
+
+C. Relationship traversal - Identify connected accounts, devices, IPs,
+or other entities.
+
+D. Risk analysis - Retrieve transaction attributes required by the risk
+engine.
+
+E. Investigation context - Retrieve graph evidence needed by the AI
+agent and GraphRAG layer.
+
+F. Case analysis - Retrieve connected evidence for an investigation
+case.
+
+Queries should return only the information required by the API layer.
+
+======================================================================
+12. GRAPH EXPLORATION AND VALIDATION
+======================================================================
+
+TigerGraph Graph Explorer should be used during development to verify
+that the graph behaves as expected.
+
+Validation checklist:
+
+[ ] PaymentTransaction vertices exist [ ] Transaction IDs are populated
+[ ] Amount values are correct [ ] Timestamp values are correct [ ] Risk
+indicators are populated where expected [ ] Relationships are present [
+] No unexpected duplicate entities exist [ ] Sample transactions can be
+retrieved [ ] Graph traversal returns expected connected entities
+
+Use representative test records before connecting the complete
+application.
+
+======================================================================
+13. ERROR HANDLING
+======================================================================
+
+The backend should handle at least the following cases:
+
+Authentication failure - Return an appropriate server-side error. - Do
+not expose the secret or token.
+
+TigerGraph unavailable - Return a controlled service-unavailable
+response. - Log the failure without credentials.
+
+Invalid graph name - Fail configuration validation early.
+
+Invalid query - Log the query identifier and error details. - Do not
+expose internal credentials.
+
+Empty result - Return a valid empty response rather than crashing.
+
+Timeout - Apply reasonable request timeouts. - Return a controlled
+timeout response.
+
+Schema mismatch - Detect unexpected attributes/types. - Log the mismatch
+for investigation.
+
+======================================================================
+14. SECURITY REQUIREMENTS
+======================================================================
+
+Security is critical because TraceGuard AI processes potentially
+sensitive transaction and fraud-investigation data.
+
+Required practices:
+
+1.  Never commit TigerGraph secret keys.
+2.  Never place database credentials in frontend code.
+3.  Never expose secrets in API responses.
+4.  Use HTTPS for external communication.
+5.  Store credentials in environment variables or a secure secret store.
+6.  Rotate compromised credentials immediately.
+7.  Restrict production access using least privilege.
+8.  Avoid logging authentication tokens.
+9.  Sanitize application logs.
+10. Validate all incoming API requests.
+11. Use authentication/authorization for backend endpoints.
+12. Avoid exposing raw database errors to end users.
+
+IMPORTANT: Any credential included in an earlier project note, chat
+message, screenshot, repository, or public document should be considered
+exposed. Rotate it before using the system in production.
+
+======================================================================
+15. BACKEND HANDOFF
+======================================================================
+
+The TigerGraph integration handoff provides the backend team with:
+
+-   TigerGraph Cloud environment
+-   Active workspace
+-   Graph name: TraceGuardGraph
+-   Primary vertex: PaymentTransaction
+-   Data loading configuration
+-   Authentication mechanism
+-   Required environment variable names
+-   Schema discovery requirement
+-   Graph Explorer verification status
+
+The backend team’s immediate tasks are:
+
+1.  Configure secure environment variables.
+2.  Verify TigerGraph connectivity.
+3.  Run inspect_schema.py or equivalent schema discovery.
+4.  Confirm PaymentTransaction schema.
+5.  Confirm available relationships.
+6.  Run a read-only test query.
+7.  Create a database service/repository layer.
+8.  Replace mock data with live GSQL/REST results.
+9.  Connect investigation logic to graph data.
+10. Validate results through the frontend.
+11. Add production-grade error handling.
+12. Remove all temporary/mock database paths after validation.
+
+======================================================================
+16. RECOMMENDED PROJECT STRUCTURE
+======================================================================
+
+A clean backend integration can follow a structure similar to:
+
+backend/ | +– app/ | +– main.py | +– config.py | +– api/ | | +– routes/
+| | | +– services/ | | +– tigergraph_service.py | | +–
+investigation_service.py | | | +– schemas/ | | +– transaction.py | | |
++– queries/ | +– transaction_queries.py | +– scripts/ | +–
+inspect_schema.py | +– .env +– .env.example +– .gitignore
+
+The exact structure may be adapted to the existing TraceGuard AI
+repository.
+
+======================================================================
+17. TESTING PLAN
+======================================================================
+
+TEST 1 - Environment Validation
+
+Verify:
+
+TIGERGRAPH_HOST exists TIGERGRAPH_GRAPH_NAME exists TIGERGRAPH_SECRET
+exists
+
+Expected: Application starts without configuration errors.
+
+TEST 2 - Authentication
+
+Generate a token using the configured secret.
+
+Expected: Authentication succeeds without exposing the token in logs.
+
+TEST 3 - Connectivity
+
+Send a minimal read-only request to TigerGraph.
+
+Expected: TigerGraph returns a valid response.
+
+TEST 4 - Schema Discovery
+
+Run inspect_schema.py.
+
+Expected: TraceGuardGraph and PaymentTransaction are discovered.
+
+TEST 5 - Data Retrieval
+
+Retrieve a known transaction.
+
+Expected: Transaction attributes match TigerGraph data.
+
+TEST 6 - Relationship Retrieval
+
+Retrieve graph relationships for a known entity.
+
+Expected: Expected connected entities/transactions are returned.
+
+TEST 7 - Frontend Integration
+
+Load the dashboard and request transaction data through FastAPI.
+
+Expected: Live TigerGraph data appears in the UI.
+
+TEST 8 - Failure Handling
+
+Temporarily provide invalid credentials.
+
+Expected: Controlled authentication error without secret leakage.
+
+======================================================================
+18. PRODUCTION CHECKLIST
+======================================================================
+
+Infrastructure [ ] TigerGraph workspace is Active [ ] Production graph
+is confirmed [ ] Network access is verified [ ] HTTPS is enabled
+
+Schema [ ] Vertex schema is finalized [ ] Edge schema is finalized [ ]
+Attribute types are verified [ ] Loading jobs are validated
+
+Authentication [ ] Secret has been rotated if exposed [ ] Secrets are
+stored outside source control [ ] Least-privilege access is configured [
+] Token handling is secure
+
+Backend [ ] FastAPI connection tested [ ] Schema discovery completed [ ]
+Live GSQL/REST queries implemented [ ] Mock data removed or disabled [ ]
+Error handling implemented [ ] Logging sanitized
+
+Frontend [ ] Frontend calls FastAPI only [ ] No TigerGraph credentials
+exist in frontend [ ] Loading/error states implemented [ ] Live graph
+data verified
+
+Testing [ ] Unit tests completed [ ] Integration tests completed [ ]
+Authentication failure tested [ ] Database timeout tested [ ]
+Empty-result scenario tested [ ] Production configuration tested
+
+======================================================================
+19. CURRENT INTEGRATION STATUS
+======================================================================
+
+Completed:
+
+Phase 1: TigerGraph Cloud infrastructure and workspace setup.
+
+Phase 2: TraceGuardGraph schema and PaymentTransaction model design.
+
+Phase 3: Transaction data mapping, loading job configuration, and Graph
+Explorer verification.
+
+Phase 4: Authentication mechanism and backend connection configuration.
+
+Phase 5: Backend handoff for schema discovery and migration from mock
+data to live TigerGraph queries.
+
+Next priority:
+
+1.  Rotate any previously exposed credential.
+2.  Configure secure backend environment variables.
+3.  Run schema discovery.
+4.  Verify the live graph schema.
+5.  Implement the TigerGraph service layer.
+6.  Replace mock data with live queries.
+7.  Connect live graph evidence to the TraceGuard AI investigation
+    workflow.
+8.  Perform end-to-end testing.
+
+======================================================================
+20. FINAL INTEGRAT
