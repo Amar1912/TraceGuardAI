@@ -1,0 +1,161 @@
+================================================================================
+TECHNICAL BLOG POST: TRACEGUARD AI
+Building an Autonomous Agentic Fraud Investigation Platform with TigerGraph & GraphRAG
+================================================================================
+
+TITLE: Building TraceGuard AI: Autonomous Graph-Powered Fraud Investigation & Next-Best Action Platform with TigerGraph
+AUTHOR: TraceGuard AI Engineering Team
+DATE: September 2026
+HACKATHON: TigerGraph Agentic Fraud Investigation HHGOA Hackathon
+
+
+--------------------------------------------------------------------------------
+1. INTRODUCTION & WHAT WE BUILT
+--------------------------------------------------------------------------------
+
+Financial fraud is evolving at unprecedented speed. Sophisticated fraud syndicates
+employ Account Takeovers (ATO), synthetic identities, and device-sharing rings
+that rapidly funnel funds through complex networks of money mules and proxy IP clusters.
+
+Traditional fraud teams at financial institutions face a critical challenge:
+- Analysts must manually pull transaction logs across disconnected databases.
+- Tracing money movements across multi-hop relationships takes hours.
+- Policy compliance and Suspicious Activity Report (SAR) filing are slow and manual.
+- By the time an investigation completes, stolen funds are long gone.
+
+To solve this, we built TraceGuard AI — an autonomous, agentic fraud investigation
+platform powered by TigerGraph Cloud, LangGraph, GraphRAG, FastAPI, and a Next.js 15
+Cyber Command Center UI.
+
+TraceGuard AI automates the complete end-to-end investigation lifecycle:
+1. Detects suspicious activity triggers (velocity spikes, high-value transfers, VPN exits).
+2. Autonomous multi-hop evidence gathering from TigerGraph (shared hardware, IP clusters).
+3. Detects complex fraud topologies (Device Sharing Rings, Rapid Asset Movement, Structuring).
+4. Evaluates risk vs. confidence and requests additional policy-approved evidence when uncertain.
+5. Recommends policy-governed Next-Best Actions (Block Account, File SAR, Step-Up Auth).
+6. Enforces human-in-the-loop analyst governance for high-impact actions.
+7. Generates complete, explainable dossiers and writes investigation memory back to the graph.
+
+
+--------------------------------------------------------------------------------
+2. SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+
+TraceGuard AI is designed around a decoupled, microservice-friendly architecture:
+
+[ User Interface Layer ]
+  └─ Next.js 15 App Router & Tailwind CSS (Cyber Command Center UI)
+  └─ Real-time Dashboard | Case Docket Queue | Interactive Cockpit | Graph Viewer
+
+[ API Orchestration Layer ]
+  └─ FastAPI Core Service (Python 3.11+)
+  └─ REST endpoints (/api/v1/cases, /transactions, /investigations, /graph, /benchmark)
+  └─ Dual-source database abstraction (TigerGraph Cloud + SQLite caching)
+
+[ Agentic Reasoning Layer ]
+  └─ LangGraph 8-Node State Machine Agent Workflow
+  └─ State nodes: Investigate -> Collect Evidence -> Detect Patterns -> Assess Risk
+     -> Recommend Action -> Policy Guard -> Generate Explanation -> Save Memory
+
+[ Knowledge & Context Layer (GraphRAG) ]
+  └─ Policy & Regulatory Rule Store (SAR filing rules, velocity thresholds)
+  └─ Typology Engine & Historical Case Memory RAG
+
+[ Graph Storage & Analytics Layer ]
+  └─ TigerGraph Cloud (`TraceGuardGraph`)
+  └─ GSQL Installed Queries: `findSharedDevices`, `getCaseNetwork`
+  └─ pyTigerGraph & RESTPP Token Authentication
+
+
+--------------------------------------------------------------------------------
+3. HOW TIGERGRAPH IS USED
+--------------------------------------------------------------------------------
+
+Relational databases struggle with deep graph queries, requiring expensive JOIN
+operations that timeout when traversing multi-hop networks. TigerGraph serves
+as the central intelligence graph engine in TraceGuard AI.
+
+1. Schema Topology (`TraceGuardGraph`):
+   - Primary Vertex: `PaymentTransaction` (amount, timestamp, risk_score, sender, receiver)
+   - Secondary Vertices: `Account`, `Customer`, `Device`, `IP`, `Case`
+   - Edges: `INITIATED`, `USED_DEVICE`, `FROM_IP`, `ASSOCIATED_WITH`, `OWNED_BY`
+
+2. Custom GSQL Installed Queries:
+   - `findSharedDevices`: Traverses target account -> transactions -> devices
+     -> other transactions -> connected accounts to expose device-sharing rings instantly.
+   - `getCaseNetwork`: Extracts a 3-hop local subgraph around any case/transaction
+     including connected hardware, IP addresses, and counterparty nodes.
+
+3. Sub-Second Performance & RESTPP Integration:
+   - Secure token authentication via TigerGraph RESTPP endpoints.
+   - Converts raw graph JSON returns into normalized GraphData DTOs for 2D/3D visualization.
+
+
+--------------------------------------------------------------------------------
+4. THE AGENTIC CAPABILITIES IMPLEMENTED
+--------------------------------------------------------------------------------
+
+TraceGuard AI uses an autonomous LangGraph state machine with 8 distinct nodes:
+
+1. Investigate Node: Initializes case state from incoming risk signals or customer alerts.
+2. Collect Evidence Node: Invokes TigerGraph MCP tools to retrieve multi-hop relationships.
+3. Detect Patterns Node: Analyzes graph evidence for 4 primary fraud typologies:
+   - Device Sharing Ring (hardware ID used across 3+ unrelated accounts)
+   - Rapid Asset Movement (high-velocity transfers through intermediary nodes)
+   - Account Takeover / ATO (unrecognized device + proxy IP + high value)
+   - Structuring (successive transactions just below reporting thresholds)
+4. Assess Risk & Uncertainty Node: Calculates dynamic risk score (0-100) and confidence.
+   If uncertainty is high, flags the need for additional evidence.
+5. Recommend Next-Best Action Node: Formulates defensible directives (e.g. BLOCK_ACCOUNT,
+   FILE_REPORT, STEP_UP_AUTH, ESCALATE).
+6. Policy Guardrail Node: Evaluates directives against institutional policy rules.
+   High-impact actions are flagged for mandatory human approval.
+7. Generate Explanation Node: Produces complete, human-readable reasoning dossiers.
+8. Save Memory Node: Persists findings, decisions, and outcomes into case memory.
+
+
+--------------------------------------------------------------------------------
+5. WHAT WE LEARNED
+--------------------------------------------------------------------------------
+
+1. Graph Databases Are Uniquely Suited for Fraud:
+   Fraud is inherently about relationships. A single transaction may look benign in isolation,
+   but when connected to a shared device linked to 4 other flagged accounts, the fraud ring
+   becomes instantly obvious.
+
+2. Combining GraphRAG with Policy Engines Eliminates Hallucinations:
+   LLMs alone can hallucinate or suggest actions that violate banking regulations. By grounding
+   our agent with GraphRAG (policy rules + historical case memory) and executing policy guardrails,
+   every recommended action is defensible and audit-compliant.
+
+3. Human-in-the-Loop Governance Builds Analyst Trust:
+   AI agents should assist and accelerate analysts, not replace human judgment. Providing
+   clear explainability and interactive approval controls builds immediate trust with fraud ops.
+
+
+--------------------------------------------------------------------------------
+6. WHAT WE WOULD IMPROVE WITH MORE TIME
+--------------------------------------------------------------------------------
+
+1. Real-Time Streaming Graph Ingestion:
+   Integrate Kafka / WebSockets to stream incoming payment transactions into TigerGraph
+   for zero-latency real-time intercept before funds settle.
+2. Automated GSQL Pattern Synthesis:
+   Enable the AI agent to dynamically generate and compile GSQL queries for novel,
+   unseen fraud typologies.
+3. Federated Multi-Bank Node Network:
+   Implement Privacy-Preserving Graph Neural Networks (GNNs) across federated bank nodes
+   to detect cross-institutional fraud syndicates without sharing raw customer PII.
+
+
+--------------------------------------------------------------------------------
+7. HACKATHON BENCHMARK & DEMO
+--------------------------------------------------------------------------------
+
+- Benchmark Endpoint: `POST /api/v1/benchmark/process` executes the complete agentic
+  investigation pipeline on all 20 hackathon benchmark cases and generates standardized
+  answer records.
+- Source Code Repository: https://github.com/Amar1912/TraceGuardAI.git
+- Stack Summary: Next.js 15 | FastAPI | LangGraph | TigerGraph Cloud | GraphRAG | SQLite
+
+================================================================================
