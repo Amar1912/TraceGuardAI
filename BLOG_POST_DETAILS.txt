@@ -1,12 +1,12 @@
 ================================================================================
-TECHNICAL BLOG POST: TRACEGUARD AI
+TECHNICAL BLOG POST: TRACEGUARD AI                            [ HackerNest ]
 Building an Autonomous Agentic Fraud Investigation Platform with TigerGraph & GraphRAG
 ================================================================================
 
 TITLE: Building TraceGuard AI: Autonomous Graph-Powered Fraud Investigation & Next-Best Action Platform with TigerGraph
-AUTHOR: TraceGuard AI Engineering Team
+AUTHOR: TraceGuard AI Engineering Team | HackerNest
 DATE: September 2026
-HACKATHON: TigerGraph Agentic Fraud Investigation HHGOA Hackathon
+HACKATHON: TigerGraph Agentic Fraud Investigation HHGOA Hackathon (HackerNest)
 
 
 --------------------------------------------------------------------------------

@@ -49,6 +49,12 @@ export function Topbar() {
         {/* Vertical Separator */}
         <div className="w-px h-5 bg-[#1e293b]"></div>
 
+        {/* HackerNest Top Right Branding Badge */}
+        <div className="flex items-center gap-1.5 bg-gradient-to-r from-cyan-950/80 via-blue-950/60 to-purple-950/80 border border-cyan-500/40 px-3 py-1 rounded-lg text-xs font-mono font-bold text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]">
+          <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="tracking-wider uppercase">HackerNest</span>
+        </div>
+
         {/* User profile capsule info */}
         <div className="flex items-center gap-2.5 font-mono">
           <div className="text-right hidden md:block">
