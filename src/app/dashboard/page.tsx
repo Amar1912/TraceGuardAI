@@ -48,20 +48,21 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        const [sum, trend, status, pats, cases] = await Promise.all([
+        const results = await Promise.allSettled([
           DashboardService.getSummary(),
           DashboardService.getRiskTrend(),
           DashboardService.getCaseStatusDistribution(),
           DashboardService.getFraudPatternDistribution(),
           CaseService.getCases()
         ]);
-        setSummary(sum);
-        setRiskTrend(trend);
-        setCaseStatus(status);
-        setPatterns(pats);
-        setRecentCases(cases.slice(0, 5));
+
+        if (results[0].status === "fulfilled") setSummary(results[0].value);
+        if (results[1].status === "fulfilled") setRiskTrend(results[1].value);
+        if (results[2].status === "fulfilled") setCaseStatus(results[2].value);
+        if (results[3].status === "fulfilled") setPatterns(results[3].value);
+        if (results[4].status === "fulfilled" && results[4].value) setRecentCases(results[4].value.slice(0, 5));
       } catch (error) {
-        console.error("Failed to load dashboard data", error);
+        console.warn("Failed to load dashboard data from API:", error);
       } finally {
         setLoading(false);
       }
